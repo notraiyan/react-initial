@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import SmallModal from './SmallModal';
+import axios from "axios";
 
 function MyModal({data}) {
     const [modal, setModal] = useState(true);
     const [openModal, setOpenModal] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [search, setSearch] = useState("");
     const [contact, setContact] = useState();
     const [filteredData, setFilteredData] = useState(data);
     const toggle = () => setModal(!modal);
@@ -19,6 +21,16 @@ function MyModal({data}) {
         }
     }, [isChecked, data]);
 
+    const handleSearch = () => {
+        axios.get(`https://contact.mediusware.com/api/contacts/${search ? "?search=" + search : ""}`)
+            .then(res => {
+                setFilteredData(res.data.results);
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
+    }
+
   return (
     <div>
         {openModal && 
@@ -27,6 +39,8 @@ function MyModal({data}) {
       <Modal isOpen={modal} toggle={() => navigate("/problem-2")} >
         <ModalHeader toggle={() => navigate("/problem-2")}>Contacts</ModalHeader>
         <ModalBody>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Button onClick={handleSearch}>Search</Button>
             <table className="table table-striped">
                 <thead>
                     <tr>
