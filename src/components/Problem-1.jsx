@@ -1,12 +1,41 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 const Problem1 = () => {
 
     const [show, setShow] = useState('all');
+    const [data, setData] = useState([]);
+    const [status, setStatus] = useState("");
+    const [name, setName] = useState("");
+    const [sortedData, setSortedData] = useState([]);
 
-    const handleClick = (val) =>{
+    const handleClick = (val) => {
         setShow(val);
     }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (data.length === 0) {
+            setData(data => [{name: name, status: status}]);
+        } else {
+            setData(data => [...data, {name: name, status: status}]);
+        }
+        setSortedData(data);
+        setName("");
+        setStatus("");
+    }
+
+    useEffect(() => {
+        if (show === 'active'){
+            setSortedData(data.filter(item => item.status === 'active'));
+        } else if (show === 'completed'){
+            setSortedData(data.filter(item => item.status === 'completed'));
+        } else {
+            const activeData = data.filter(item => item.status === 'active');
+            const completedData = data.filter(item => item.status === 'completed');
+            const restData = data.filter(item => item.status !== 'active' && item.status !== 'completed');
+            setSortedData([...activeData, ...completedData, ...restData]);
+        }
+    }, [data, show]);
+    
 
     return (
 
@@ -14,12 +43,12 @@ const Problem1 = () => {
             <div className="row justify-content-center mt-5">
                 <h4 className='text-center text-uppercase mb-5'>Problem-1</h4>
                 <div className="col-6 ">
-                    <form className="row gy-2 gx-3 align-items-center mb-4">
+                    <form className="row gy-2 gx-3 align-items-center mb-4" onSubmit={(e) => handleSubmit(e)}>
                         <div className="col-auto">
-                            <input type="text" className="form-control" placeholder="Name"/>
+                            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="form-control" placeholder="Name"/>
                         </div>
                         <div className="col-auto">
-                            <input type="text" className="form-control" placeholder="Status"/>
+                            <input type="text" value={status} onChange={(e) => setStatus(e.target.value)} className="form-control" placeholder="Status"/>
                         </div>
                         <div className="col-auto">
                             <button type="submit" className="btn btn-primary">Submit</button>
@@ -47,7 +76,11 @@ const Problem1 = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        
+                            {sortedData.map((item) => (
+                                <tr key={item.name}>
+                                    <td>{item.name}</td><td>{item.status}</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
